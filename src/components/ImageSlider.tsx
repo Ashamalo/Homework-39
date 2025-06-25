@@ -13,17 +13,17 @@ const ImageSlider = () => {
   const slides: Slide[] = [
     {
       id: 1,
-      imageUrl: "/images/image1.jpg",
+      imageUrl: import.meta.env.BASE_URL + "/images/image1.jpg",
       caption: "Красивий пейзаж зі скелею і човном у морі"
     },
     {
       id: 2,
-      imageUrl: "/images/image2.jpg",
+      imageUrl: import.meta.env.BASE_URL + "/images/image2.jpg",
       caption: "Квітучі маки у полі"
     },
     {
       id: 3,
-      imageUrl: "/images/image3.jpg",
+      imageUrl: import.meta.env.BASE_URL + "/images/image3.jpg",
       caption: "Захід сонця на морському узбережжі"
     }
   ];

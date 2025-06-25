@@ -21,17 +21,17 @@ class ClassSlider extends Component<{}, State> {
   slides: Slide[] = [
     {
       id: 1,
-      imageUrl: "/images/nature1.jpg",
+      imageUrl: import.meta.env.BASE_URL + "/images/nature1.jpg",
       caption: "Хмарочоси на узбережжі"
     },
     {
       id: 2,
-      imageUrl: "/images/nature2.jpg",
+      imageUrl: import.meta.env.BASE_URL + "/images/nature2.jpg",
       caption: "Рідкісний вид орла"
     },
     {
       id: 3,
-      imageUrl: "/images/nature3.jpg",
+      imageUrl: import.meta.env.BASE_URL + "/images/nature3.jpg",
       caption: "Скелясте узбережжя з неспокійною водою"
     }
   ];
