@@ -1,10 +1,5 @@
 import type { ReactNode } from 'react';
-
-interface Slide {
-  id: number;
-  imageUrl: string;
-  caption: string;
-}
+import type { Slide } from '../commonTypes/slide';
 
 interface SlideViewProps {
   slide: Slide;

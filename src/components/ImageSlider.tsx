@@ -1,48 +1,33 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import SlideView from './SlideView';
+import { slidesData } from '../data/slides';
+import { getNextSlideIndex, getPrevSlideIndex } from '../utils/sliderUtils';
+import type { Slide } from '../commonTypes/slide';
 
-interface Slide {
-  id: number;
-  imageUrl: string;
-  caption: string;
-}
+const ImageSlider: React.FC = () => {
+  const [currentSlide, setCurrentSlide] = useState<number>(0);
+  const slides: Slide[] = slidesData;
+  const totalSlides: number = slides.length;
 
-const ImageSlider = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  
-  const slides: Slide[] = [
-    {
-      id: 1,
-      imageUrl: "/images/image1.jpg",
-      caption: "Красивий пейзаж зі скелею і човном у морі"
-    },
-    {
-      id: 2,
-      imageUrl: "/images/image2.jpg",
-      caption: "Квітучі маки у полі"
-    },
-    {
-      id: 3,
-      imageUrl: "/images/image3.jpg",
-      caption: "Захід сонця на морському узбережжі"
-    }
-  ];
+  const nextSlide = useCallback((): void => {
+    setCurrentSlide(prev => getNextSlideIndex(prev, totalSlides));
+  }, [totalSlides]);
+
+  const prevSlide = useCallback((): void => {
+    setCurrentSlide(prev => getPrevSlideIndex(prev, totalSlides));
+  }, [totalSlides]);
+
+  const createSlideHandler = useCallback((index: number): () => void => {
+    return () => setCurrentSlide(index);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide(prev => (prev === slides.length - 1 ? 0 : prev + 1));
+      nextSlide();
     }, 5000);
-    
+
     return () => clearInterval(interval);
-  }, [currentSlide]);
-
-  const nextSlide = () => {
-    setCurrentSlide(prev => (prev === slides.length - 1 ? 0 : prev + 1));
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide(prev => (prev === 0 ? slides.length - 1 : prev - 1));
-  };
+  }, [nextSlide]);
 
   return (
     <div className="image-slider">
@@ -52,17 +37,19 @@ const ImageSlider = () => {
         <button 
           className="nav-button prev-button" 
           onClick={prevSlide}
+          aria-label="Попередній слайд"
         >
           &larr;
         </button>
         
         <div className="slide-wrapper">
-          <SlideView slide={slides[currentSlide]} />
+          {slides[currentSlide] && <SlideView slide={slides[currentSlide]} />}
         </div>
         
         <button 
           className="nav-button next-button" 
           onClick={nextSlide}
+          aria-label="Наступний слайд"
         >
           &rarr;
         </button>
@@ -73,7 +60,9 @@ const ImageSlider = () => {
           <button
             key={index}
             className={`indicator ${index === currentSlide ? 'active' : ''}`}
-            onClick={() => setCurrentSlide(index)}
+            onClick={createSlideHandler(index)}
+            aria-label={`Перейти до слайду ${index + 1}`}
+            aria-current={index === currentSlide ? "true" : "false"}
           />
         ))}
       </div>

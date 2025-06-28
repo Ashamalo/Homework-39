@@ -1,112 +1,72 @@
-import { Component } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import SlideView from './SlideView';
+import { slidesData } from '../data/slides';
+import { getNextSlideIndex, getPrevSlideIndex } from '../utils/sliderUtils';
 
-interface Slide {
-  id: number;
-  imageUrl: string;
-  caption: string;
-}
+const ImageSlider = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const slides = slidesData;
+  const totalSlides = slides.length;
 
-interface State {
-  currentSlide: number;
-}
+  const nextSlide = useCallback(() => {
+    setCurrentSlide(prev => getNextSlideIndex(prev, totalSlides));
+  }, [totalSlides]);
 
-class ClassSlider extends Component<{}, State> {
-  intervalId?: number;
-  
-  state: State = {
-    currentSlide: 0
-  };
-  
-  slides: Slide[] = [
-    {
-      id: 1,
-      imageUrl: "/images/nature1.jpg",
-      caption: "Хмарочоси на узбережжі"
-    },
-    {
-      id: 2,
-      imageUrl: "/images/nature2.jpg",
-      caption: "Рідкісний вид орла"
-    },
-    {
-      id: 3,
-      imageUrl: "/images/nature3.jpg",
-      caption: "Скелясте узбережжя з неспокійною водою"
-    }
-  ];
+  const prevSlide = useCallback(() => {
+    setCurrentSlide(prev => getPrevSlideIndex(prev, totalSlides));
+  }, [totalSlides]);
 
-  componentDidMount() {
-    this.intervalId = window.setInterval(() => {
-      this.setState(prev => ({
-        currentSlide: prev.currentSlide === this.slides.length - 1 
-          ? 0 
-          : prev.currentSlide + 1
-      }));
+  const createSlideHandler = useCallback((index: number): () => void => {
+    return () => setCurrentSlide(index);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      nextSlide();
     }, 5000);
-  }
 
-  componentWillUnmount() {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-    }
-  }
+    return () => clearInterval(interval);
+  }, [nextSlide]);
 
-  nextSlide = () => {
-    this.setState(prev => ({
-      currentSlide: prev.currentSlide === this.slides.length - 1 
-        ? 0 
-        : prev.currentSlide + 1
-    }));
-  };
+  return (
+    <div className="image-slider">
+      <h2>Функціональний слайдер зображень</h2>
 
-  prevSlide = () => {
-    this.setState(prev => ({
-      currentSlide: prev.currentSlide === 0 
-        ? this.slides.length - 1 
-        : prev.currentSlide - 1
-    }));
-  };
+      <div className="slider-container">
+        <button 
+          className="nav-button prev-button" 
+          onClick={prevSlide}
+          aria-label="Попередній слайд"
+        >
+          &larr;
+        </button>
 
-  render() {
-    const { currentSlide } = this.state;
-    
-    return (
-      <div className="image-slider">
-        <h2>Класовий слайдер зображень</h2>
-        
-        <div className="slider-container">
-          <button 
-            className="nav-button prev-button" 
-            onClick={this.prevSlide}
-          >
-            &larr;
-          </button>
-          
-          <div className="slide-wrapper">
-            <SlideView slide={this.slides[currentSlide]} />
-          </div>
-          
-          <button 
-            className="nav-button next-button" 
-            onClick={this.nextSlide}
-          >
-            &rarr;
-          </button>
+        <div className="slide-wrapper">
+          {slides[currentSlide] && <SlideView slide={slides[currentSlide]} />}
         </div>
-        
-        <div className="slider-indicators">
-          {this.slides.map((_, index) => (
-            <button
-              key={index}
-              className={`indicator ${index === currentSlide ? 'active' : ''}`}
-              onClick={() => this.setState({ currentSlide: index })}
-            />
-          ))}
-        </div>
+
+        <button 
+          className="nav-button next-button" 
+          onClick={nextSlide}
+          aria-label="Наступний слайд"
+        >
+          &rarr;
+        </button>
       </div>
-    );
-  }
-}
 
-export default ClassSlider;
+      <div className="slider-indicators">
+        {slides.map((_, index) => (
+          <button
+            key={index}
+            className={`indicator ${index === currentSlide ? 'active' : ''}`}
+            onClick={createSlideHandler(index)}
+            aria-label={`Перейти до слайду ${index + 1}`}
+            aria-current={index === currentSlide ? "true" : "false"}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default ImageSlider;
